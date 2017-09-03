@@ -1,0 +1,14 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "description": "The Rompli Blog",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "hugo -v",
+    "deploy": "aws s3 sync public/ s3://blog.rompli.com/ --delete --profile kris",
+    "start": "hugo server -ws ."
+  },
+  "author": "Kris Hamoud",
+  "license": "ISC"
+}

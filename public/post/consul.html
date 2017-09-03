@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Terraform a Consul cluster with docker on EC2</title>
+  <meta property="og:title" content="Terraform a Consul cluster with docker on EC2" />
+  <meta name="twitter:title" content="Terraform a Consul cluster with docker on EC2" />
+  <meta name="description" content="The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future when I show you how to terraform a classic docker swarm.
+Consul, Terraform, AWS Consul is an open source software created by Hashicorp used for service discovery, configuration management, DNS, KV storage, and more. It’s a powerful tool, and it’s worth learning.">
+  <meta property="og:description" content="The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future when I show you how to terraform a classic docker swarm.
+Consul, Terraform, AWS Consul is an open source software created by Hashicorp used for service discovery, configuration management, DNS, KV storage, and more. It’s a powerful tool, and it’s worth learning.">
+  <meta name="twitter:description" content="The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future …">
+  <meta name="author" content="Kris Hamoud"/>
+  <link href='https://blog.rompli.com/img/favicon.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://blog.rompli.com/img/avatar-icon.png" />
+  <meta name="twitter:image" content="https://blog.rompli.com/img/avatar-icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@krishamoud" />
+  <meta name="twitter:creator" content="@krishamoud" />
+  <meta property="og:url" content="https://blog.rompli.com/post/consul.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rompli Blog" />
+
+  <meta name="generator" content="Hugo 0.25.1" />
+  <link rel="canonical" href="https://blog.rompli.com/post/consul.html" />
+  <link rel="alternate" href="https://blog.rompli.com/index.xml" type="application/rss+xml" title="Rompli Blog">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://blog.rompli.com/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://blog.rompli.com/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://blog.rompli.com/css/highlight.min.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.css" integrity="sha256-sCl5PUOGMLfFYctzDW3MtRib0ctyUvI9Qsmq2wXOeBY=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/default-skin/default-skin.min.css" integrity="sha256-BFeI1V+Vh1Rk37wswuOYn5lsTcaU96hGaI7OUVCLjPc=" crossorigin="anonymous" />
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-82742047-3', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://blog.rompli.com/">Rompli Blog</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Blog" href="/">Blog</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="About" href="/page/about.html">About</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags.html">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Rompli Blog" href="https://blog.rompli.com/">
+            <img class="avatar-img" src="https://blog.rompli.com/img/avatar-icon.png" alt="Rompli Blog" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Terraform a Consul cluster with docker on EC2</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on July 19, 2017
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<p>The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future when I show you how to terraform a classic docker swarm.</p>
+
+<h3 id="consul-terraform-aws">Consul, Terraform, AWS</h3>
+
+<p><a href="https://www.consul.io/">Consul</a> is an open source software created by Hashicorp used for service discovery, configuration management, DNS, KV storage, and more. It’s a powerful tool, and it’s worth learning.</p>
+
+<p><a href="https://www.terraform.io/">Terraform</a> is another open source software created by Hashicorp. It is a simple tool that allows you to “Write, Plan, and Create Infrastructure as Code.” Terraform is another powerful tool that I think developers and sysOps people alike should learn to use.</p>
+
+<p><a href="https://aws.amazon.com/">AWS</a> is a cloud hosting service provided by the good people at Amazon. I am a big fan of how easy it is to use and how powerful the toolset is.</p>
+
+<h3 id="step-1-creating-the-consul-module">Step 1: Creating the Consul module</h3>
+
+<p>Terraform <a href="https://www.terraform.io/intro/getting-started/modules.html">modules</a> are powerful. They allow you to create a complex infrastructure that can be modified or duplicated just by changing a few variables.</p>
+
+<p>Create a new folder; I’ll call it <code>test</code>, where all your code will go and add a modules folder.</p>
+
+<pre><code>mkdir test
+cd test
+mkdir -p modules/consul
+</code></pre>
+
+<p>While in the root folder create your main terraform file.</p>
+
+<pre><code>touch main.tf
+</code></pre>
+
+<p>Terraform files end with the extension <code>.tf</code>.  These files use a syntax called <a href="https://www.terraform.io/docs/configuration/syntax.html">HashiCorp Configuration Language (HCL)</a></p>
+
+<p>This file will be pretty simple.</p>
+
+<pre><code>// main.tf
+// Setup the core provider information.
+provider &quot;aws&quot; {
+  region  = &quot;${var.region}&quot;
+  access_key = &quot;${var.aws_access_key}&quot;
+  secret_key = &quot;${var.aws_secret_key}&quot;
+}
+
+//  Create the consul-cluster, based on our consul module.
+module &quot;consul-cluster&quot; {
+
+}
+</code></pre>
+
+<p>Ok, this should be easy enough to understand but here is whats going on.</p>
+
+<pre><code>provider &quot;aws&quot; {
+  region  = &quot;us-east-1&quot;
+  access_key = &quot;${var.aws_access_key}&quot;
+  secret_key = &quot;${var.aws_secret_key}&quot;
+}
+
+</code></pre>
+
+<p>This block sets up the <a href="https://www.terraform.io/docs/providers/index.html">provider</a>.  Providers are typically the underlying IaaS platform.  All we&rsquo;re doing here is setting up the <code>AWS</code> provider with our secret credentials and region.  If you don&rsquo;t have an access and secret key you can get them <a href="https://console.aws.amazon.com/iam/home#/home">here</a>.</p>
+
+<pre><code>module &quot;consul-cluster&quot; {
+
+}
+</code></pre>
+
+<p>This block is the beginning of our module. It doesn’t do anything useful or exciting yet.</p>
+
+<h3 id="step-2-variables">Step 2: Variables</h3>
+
+<p>We need to create a variable file in the root folder of our project so we can store our default variables.</p>
+
+<pre><code>touch variables.tf
+</code></pre>
+
+<p>A module without variables isn’t useful. I’m going to add all the necessary variables to the module block.</p>
+
+<pre><code>module &quot;consul-cluster&quot; {
+  source          = &quot;./modules/consul&quot;
+  region          = &quot;us-east-1&quot;
+  ec2_ami         = &quot;ami-d15a75c7&quot; // This is the ubuntu 16.04 AMI in the us-east-1 region
+  amisize         = &quot;t2.micro&quot;
+  min_size        = &quot;3&quot;
+  max_size        = &quot;3&quot;
+  key_name        = &quot;your-aws-key&quot;
+  asgname         = &quot;consul-asg&quot;
+  aws_vpc         = &quot;${var.aws_vpc}&quot;
+  vpc_zone_a      = &quot;${var.vpc_zone_a}&quot;
+  vpc_zone_b      = &quot;${var.vpc_zone_b}&quot;
+  root_url        = &quot;rootdomain.com&quot;  
+}
+</code></pre>
+
+<p>I&rsquo;ll go through each of these individually.</p>
+
+<p><code>source</code> is the location of the <code>module</code> code.</p>
+
+<p><code>region</code> is the region where we will deploy the cluster.</p>
+
+<p><code>ec2_ami</code> is the <code>AMI</code> we will use to deploy our <code>EC2</code> instances</p>
+
+<p><code>amisize</code> is the size of the <code>EC2</code> instance that we will be using.  A <code>t2.micro</code> will be good enough for demo purposes, and they are free for your first year using AWS.</p>
+
+<p><code>min_size</code> and <code>max_size</code> are the minima and maximum size of our auto-scaling group we will create.  More on this later.</p>
+
+<p><code>key_name</code> is the pem key file name that you can use to ssh into your instances.</p>
+
+<p><code>asgname</code> is the what we&rsquo;ll use to name our auto-scaling group that we will create later.</p>
+
+<p><code>aws_vpc</code> is going to be the ID of the <code>vpc</code> where we are deploying our cluster.  For this tutorial, I am using the default <code>vpc</code>.</p>
+
+<p><code>vpc_zone_a</code>, <code>vpc_zone_b</code> are the subnets of the default <code>vpc</code> where we will deploy our cluster.</p>
+
+<p><code>root_url</code> is the domain name that we own. The root URL is useful so we can use DNS to connect to our cluster rather than IP addresses.</p>
+
+<p>Next, we need to modify our <code>variables.tf</code> file to look like this.</p>
+
+<pre><code>// test/variables.tf
+variable &quot;aws_vpc&quot; {
+  default = &quot;vpc-xxxxxxxxx&quot;
+}
+
+variable &quot;vpc_zone_a&quot; {
+  default = &quot;subnet-xxxxxxxxx&quot;
+}
+
+variable &quot;vpc_zone_b&quot; {
+  default = &quot;subnet-xxxxxxxxx&quot;
+}
+</code></pre>
+
+<p>We will also need to create a <code>variables.tf</code> file within our consul module.</p>
+
+<pre><code>cd modules/consul
+touch variables.tf
+</code></pre>
+
+<p>This file will contain all of our variables that we already defined above because our module doesn’t know what variables it needs. You may notice that I added a <code>hosted_zone</code> variable. For this tutorial, I’m using <code>Route53</code> for DNS and will need this later.</p>
+
+<pre><code>// ./modules/consul/variables.tf
+variable &quot;ec2_ami&quot; {
+  description = &quot;The EC2 ami to use&quot;
+}
+
+variable &quot;asgname&quot; {
+  description = &quot;Autoscaling group name&quot;
+}
+
+variable &quot;region&quot; {
+  description = &quot;Region where the ASG will be deployed&quot;
+}
+
+variable &quot;min_size&quot; {
+  description = &quot;Minimum size of the ASG&quot;
+}
+
+variable &quot;max_size&quot; {
+  description = &quot;Maximum size of the ASG&quot;
+}
+
+variable &quot;amisize&quot; {
+  description = &quot;Instance size of the consul nodes&quot;
+}
+
+variable &quot;key_name&quot; {
+  description = &quot;Key to be used to create the instances&quot;
+}
+
+variable &quot;aws_vpc&quot; {
+  description = &quot;The VPC to launch the cluster into&quot;
+}
+
+variable &quot;vpc_zone_a&quot; {
+  description = &quot;Zone A&quot;
+}
+
+variable &quot;vpc_zone_b&quot; {
+  description = &quot;Zone B&quot;
+}
+
+variable &quot;root_url&quot; {
+  description = &quot;The root url to use&quot;
+}
+
+variable &quot;hosted_zone&quot; {
+  description = &quot;The hosted zone ID to change the consul dns&quot;
+  default = &quot;xxxxxxxxxxxx&quot;
+}
+</code></pre>
+
+<h3 id="step-3-security-groups">Step 3: Security Groups</h3>
+
+<p>Within the directory <code>test/modules/consul</code> we need to create a <code>security-groups.tf</code> file.  Within this file (and most other <code>.tf</code> files) we are going to create <a href="https://www.terraform.io/docs/configuration/resources.html">resources</a>.  Resources are the most important things you will configure with Terraform.  Resources are the components of your infrastructure.</p>
+
+<pre><code>touch security-groups.tf
+</code></pre>
+
+<p><code>security-groups.tf</code> should look like this</p>
+
+<pre><code>// test/modules/consul/security-groups.tf
+//  Create an internal security group for the VPC, which allows everything in the VPC
+//  to talk to everything else.
+resource &quot;aws_security_group&quot; &quot;consul-cluster-vpc&quot; {
+  name        = &quot;consul-cluster-vpc&quot;
+  description = &quot;Default security group that allows inbound and outbound traffic from all instances in the VPC&quot;
+  vpc_id      = &quot;${var.aws_vpc}&quot;
+
+  ingress {
+    from_port = &quot;0&quot;
+    to_port   = &quot;0&quot;
+    protocol  = &quot;-1&quot;
+    self      = true
+  }
+
+  egress {
+    from_port = &quot;0&quot;
+    to_port   = &quot;0&quot;
+    protocol  = &quot;-1&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags {
+    Name    = &quot;Consul Cluster Internal VPC&quot;
+    Project = &quot;consul-cluster&quot;
+  }
+}
+
+//  Create a security group allowing web access to the public subnet.
+resource &quot;aws_security_group&quot; &quot;consul-cluster-public-web&quot; {
+  name        = &quot;consul-cluster-public-web&quot;
+  description = &quot;Security group that allows web traffic from internet&quot;
+  vpc_id      = &quot;${var.aws_vpc}&quot;
+
+  ingress {
+    from_port   = 8500
+    to_port     = 8500
+    protocol    = &quot;tcp&quot;
+    cidr_blocks = [&quot;0.0.0.0/0&quot;]
+  }
+
+  tags {
+    Name    = &quot;Consul Cluster Public Web&quot;
+    Project = &quot;consul-cluster&quot;
+  }
+}
+</code></pre>
+
+<p>Here we created two security groups. The first allows for all inbound traffic from instances within our VPC in this security group. The second allows for public access to port <code>8500</code>.  The Consul web UI listens on Port <code>8500</code>.</p>
+
+<h3 id="step-4-creating-iam-roles-policies-and-attaching-them">Step 4: Creating IAM roles, policies, and attaching them</h3>
+
+<p>For our instances to be able to get metadata about the other instances in the cluster, we have to create IAM roles and policies that give our instances the access they need to learn about each other.</p>
+
+<pre><code>touch iam.tf
+</code></pre>
+
+<pre><code>// test/modules/consul/iam.tf
+// This policy allows an instance to discover a consul cluster leader.
+// It also allows the instances to change the DNS record sets
+resource &quot;aws_iam_policy&quot; &quot;leader-discovery&quot; {
+  name        = &quot;consul-node-leader-discovery&quot;
+  path        = &quot;/&quot;
+  description = &quot;This policy allows a consul server to discover a consul leader by examining the instances in a consul cluster Auto-Scaling group. It needs to describe the instances in the auto scaling group, then check the IPs of the instances.&quot;
+  policy = &lt;&lt;EOF
+{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+        {
+            &quot;Sid&quot;: &quot;Stmt1468377974000&quot;,
+            &quot;Effect&quot;: &quot;Allow&quot;,
+            &quot;Action&quot;: [
+                &quot;autoscaling:DescribeAutoScalingInstances&quot;,
+                &quot;autoscaling:DescribeAutoScalingGroups&quot;,
+                &quot;ec2:DescribeInstances&quot;,
+                &quot;route53:ChangeResourceRecordSets&quot;
+            ],
+            &quot;Resource&quot;: [
+                &quot;*&quot;
+            ]
+        }
+    ]
+}
+    EOF
+}
+//  Create a role which consul instances will assume.
+//  This role has a policy saying it can be assumed by ec2
+//  instances.
+resource &quot;aws_iam_role&quot; &quot;consul-instance-role&quot; {
+  name = &quot;consul-instance-role&quot;
+  assume_role_policy = &lt;&lt;EOF
+{
+    &quot;Version&quot;: &quot;2012-10-17&quot;,
+    &quot;Statement&quot;: [
+        {
+            &quot;Action&quot;: &quot;sts:AssumeRole&quot;,
+            &quot;Principal&quot;: {
+                &quot;Service&quot;: &quot;ec2.amazonaws.com&quot;
+            },
+            &quot;Effect&quot;: &quot;Allow&quot;,
+            &quot;Sid&quot;: &quot;&quot;
+        }
+    ]
+}
+EOF
+}
+
+//  Attach the policies to the role.
+resource &quot;aws_iam_policy_attachment&quot; &quot;consul-instance-leader-discovery&quot; {
+  name       = &quot;consul-instance-leader-discovery&quot;
+  roles      = [&quot;${aws_iam_role.consul-instance-role.name}&quot;]
+  policy_arn = &quot;${aws_iam_policy.leader-discovery.arn}&quot;
+}
+
+//  Create a instance profile for the role.
+resource &quot;aws_iam_instance_profile&quot; &quot;consul-instance-profile&quot; {
+  name  = &quot;consul-instance-profile&quot;
+  roles = [&quot;${aws_iam_role.consul-instance-role.name}&quot;]
+}
+</code></pre>
+
+<h3 id="step-5-templates">Step 5: Templates</h3>
+
+<p>This step is probably the most involved step. To create a self-healing consul cluster, we must create an auto-scaling group. To create an auto-scaling group, we must create a launch configuration. Launch configurations use templates to ensure we execute the same commands on every newly created <code>EC2</code> instance.</p>
+
+<p>First let’s create a folder within our consul module where we will keep our files, <code>cd</code> into it, and create two files we will use in our launch configuration.</p>
+
+<pre><code>mkdir files
+cd files
+touch consul-node.sh
+touch docker.service
+</code></pre>
+
+<p><code>consul-node.sh</code> is a bash script that will execute when the <code>EC2</code> instance first starts up.</p>
+
+<pre><code>#!/bin/bash
+# test/modules/consul/files/consul-node.sh
+# Log everything we do.
+set -x
+exec &gt; /var/log/user-data.log 2&gt;&amp;1
+
+# # Update the packages, install aws cli.
+apt-get update -y
+apt-get install python-setuptools -y
+easy_install pip
+pip install awscli
+
+# # Install Docker, add ubuntu, start Docker and ensure startup on restart
+curl -fsSL https://get.docker.com/ | sh
+usermod -a -G docker ubuntu
+
+# A few variables we will refer to later...
+ASG_NAME=&quot;${asgname}&quot;
+REGION=&quot;${region}&quot;
+EXPECTED_SIZE=&quot;${size}&quot;
+HOSTED_ZONE=&quot;${hosted_zone}&quot;
+DOCKER_SERVICE=&quot;${docker_service}&quot;
+# Return the id of each instance in the cluster.
+function cluster-instance-ids {
+    # Grab every line which contains 'InstanceId', cut on double quotes and grab the ID:
+    #    &quot;InstanceId&quot;: &quot;i-example123&quot;
+    #....^..........^..^.....#4.....^...
+    aws --region=&quot;$REGION&quot; autoscaling describe-auto-scaling-groups --auto-scaling-group-name $ASG_NAME \
+        | grep InstanceId \
+        | cut -d '&quot;' -f4
+}
+
+# Return the private IP of each instance in the cluster.
+function cluster-ips {
+    for id in $(cluster-instance-ids)
+    do
+        aws --region=&quot;$REGION&quot; ec2 describe-instances \
+            --query=&quot;Reservations[].Instances[].[PrivateIpAddress]&quot; \
+            --output=&quot;text&quot; \
+            --instance-ids=&quot;$id&quot;
+    done
+}
+
+# Wait until we have as many cluster instances as we are expecting.
+while COUNT=$(cluster-instance-ids | wc -l) &amp;&amp; [ &quot;$COUNT&quot; -lt &quot;$EXPECTED_SIZE&quot; ]
+do
+    echo &quot;$COUNT instances in the cluster, waiting for $EXPECTED_SIZE instances to warm up...&quot;
+    sleep 1
+done
+
+# Get my IP address, all IPs in the cluster, then just the 'other' IPs...
+IP=$(curl http://169.254.169.254/latest/meta-data/local-ipv4)
+mapfile -t ALL_IPS &lt; &lt;(cluster-ips)
+OTHER_IPS=( $${ALL_IPS[@]/{$IP}/} )
+echo &quot;Instance IP is: $IP, Cluster IPs are: $${ALL_IPS[@]}, Other IPs are: $${OTHER_IPS[@]}&quot;
+
+echo &quot;${docker_service}&quot; &gt; /lib/systemd/system/docker.service
+systemctl daemon-reload
+systemctl restart docker
+# Start the Consul server.
+docker run -d --net=host \
+    --name=consul \
+    consul agent -server -ui \
+    -bind=&quot;$IP&quot; \
+    -client=&quot;0.0.0.0&quot; \
+    -retry-join=&quot;consul.yourdomain.com&quot; \
+    -bootstrap-expect=&quot;$EXPECTED_SIZE&quot;
+
+# Create the record set change file
+RECORDS=&quot;&quot;;
+IDX=0
+for i in &quot;$${ALL_IPS[@]}&quot;
+do
+  VALUE=$i
+  echo $$VALUE
+  echo $$IDX
+  if [ &quot;$$IDX&quot; = &quot;2&quot; ]; then
+    RECORDS=&quot;$$RECORDS{\&quot;Value\&quot;:\&quot;$${VALUE}\&quot;}&quot;;
+  else
+    RECORDS=&quot;$$RECORDS{\&quot;Value\&quot;:\&quot;$${VALUE}\&quot;},&quot;;
+  fi
+  IDX=$$((IDX+1))
+done
+echo $$RECORDS
+
+echo &quot;{
+  \&quot;Comment\&quot;: \&quot;dynamic consul dns changes when nodes die\&quot;,
+  \&quot;Changes\&quot;: [
+    {
+      \&quot;Action\&quot;: \&quot;UPSERT\&quot;,
+      \&quot;ResourceRecordSet\&quot;: {
+        \&quot;Name\&quot;: \&quot;consul.yourdomain.com\&quot;,
+        \&quot;Type\&quot;: \&quot;A\&quot;,
+        \&quot;TTL\&quot;: 300,
+        \&quot;ResourceRecords\&quot;: [
+          $${RECORDS}
+        ]
+      }
+    }
+  ]
+}&quot; &gt; /home/ubuntu/change-record-sets.json
+
+aws route53 change-resource-record-sets --hosted-zone-id $HOSTED_ZONE --change-batch file:///home/ubuntu/change-record-sets.json
+</code></pre>
+
+<p>The above bash script should be relatively easy to understand however there are a few syntax items that are different. That is because this is a bash template, not a bash script. We will use Terraform to pass in variables to the template that will make it a valid bash script.</p>
+
+<p><a href="https://www.terraform.io/docs/configuration/interpolation.html">Here is more information on Terraform template syntax</a></p>
+
+<p>Here is what&rsquo;s happening in the script above:</p>
+
+<ol>
+<li>Log the output of all commands to <code>/var/log/user-data.log</code>. Logging is useful because debugging AWS init scripts can be a pain.</li>
+<li>Update all the packages, install the AWS CLI, and install Docker.</li>
+<li>Create a function that will return all the instance ID&rsquo;s within the cluster</li>
+<li>Create a function that will return all the private IP&rsquo;s of the instances in the cluster</li>
+<li>Wait until we have the desired number of EC2 instances running before continuing</li>
+<li>Configure the Docker daemon</li>
+<li>Run consul in a Docker container.  See docs <a href="https://hub.docker.com/r/_/consul/">here</a></li>
+<li>Change the DNS record set to the private IP&rsquo;s of your consul cluster</li>
+</ol>
+
+<p>Step 8 might seem the most strange. In many cases, you would want to use an Elastic Load Balancer to keep track of the instances in your auto-scaling groups.  Since I am writing this tutorial as preparation for a classic docker swarm, terraform tutorial, and there is a <a href="https://github.com/docker/swarm/issues/2320">bug</a> that I haven’t been able to figure out I use raw IP’s rather than an ELB.</p>
+
+<p><code>docker.service</code> is a Terraform template used to set our Docker daemon configuration. Since I deployed this cluster on Ubuntu 16.04, I am using <code>systemd</code>. Here is how the docker configuration file looks.</p>
+
+<pre><code># test/modules/consul/files/docker.service
+[Unit]
+Description=Docker Application Container Engine
+Documentation=https://docs.docker.com
+After=network.target docker.socket firewalld.service
+Requires=docker.socket
+
+[Service]
+Type=notify
+# the default is not to use systemd for cgroups because the delegate issues still
+# exists and systemd currently does not support the cgroup feature set required
+# for containers run by docker
+ExecStart=/usr/bin/dockerd -H fd:// --log-driver=json-file --log-opt max-size=10m --log-opt max-file=1 --storage-driver=overlay2 --dns 8.8.8.8 --dns 8.8.4.4 -H unix:///var/run/docker.sock
+ExecReload=/bin/kill -s HUP $MAINPID
+LimitNOFILE=1048576
+# Having non-zero Limit*s causes performance problems due to accounting overhead
+# in the kernel. We recommend using cgroups to do container-local accounting.
+LimitNPROC=infinity
+LimitCORE=infinity
+# Uncomment TasksMax if your systemd version supports it.
+# Only systemd 226 and above support this version.
+TasksMax=infinity
+TimeoutStartSec=0
+# set delegate yes so that systemd does not reset the cgroups of docker containers
+Delegate=yes
+# kill only the docker process, not all processes in the cgroup
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
+</code></pre>
+
+<p>The most important line is the <code>ExecStart</code>. Here I set <code>--log-driver</code> to <code>json-file</code>, set the <code>max-size</code> of the log files to <code>10MB</code>, I only want to keep one log file before rotating, set the storage driver to <a href="https://docs.docker.com/engine/userguide/storagedriver/overlayfs-driver/">overlay2</a>, and use the google DNS servers.</p>
+
+<p>Now that we have our Terraform templates, we need to render them with Terraform.</p>
+
+<p>Change directories up one level and create a <code>template.tf</code> file.</p>
+
+<pre><code>cd ..
+touch template.tf
+</code></pre>
+
+<p>This file will be much simpler than the previous two.</p>
+
+<pre><code>// test/modules/consul/template.tf
+data &quot;aws_route53_zone&quot; &quot;root_url&quot; {
+  name = &quot;${var.root_url}&quot;
+}
+
+data &quot;template_file&quot; &quot;consul&quot; {
+  template = &quot;${file(&quot;${path.module}/files/consul-node.sh&quot;)}&quot;
+
+  vars {
+    asgname = &quot;${var.asgname}&quot;
+    region  = &quot;${var.region}&quot;
+    size    = &quot;${var.min_size}&quot;
+    hosted_zone = &quot;${var.hosted_zone}&quot;
+    docker_service = &quot;${data.template_file.docker-service.rendered}&quot;
+  }
+}
+
+data &quot;template_file&quot; &quot;docker-service&quot; {
+  template = &quot;${file(&quot;${path.module}/files/docker.service&quot;)}&quot;
+}
+</code></pre>
+
+<p><a href="https://www.terraform.io/docs/configuration/data-sources.html">data</a> is how information about the infrastructure gets retrieved.</p>
+
+<p>The two <code>template_file</code> data sources get the templates we created above, pass the variables that we used within the template, and render them to fully functional bash scripts and docker daemon configuration files.</p>
+
+<h3 id="step-6-launch-configurations">Step 6: Launch configurations</h3>
+
+<p>Now that we have our templates ready to go, we can create our launch configuration. Launch configurations make sure that Amazon starts every instance in our auto-scaling group the same way.</p>
+
+<pre><code>touch launch-configuration.tf
+</code></pre>
+
+<pre><code>// test/modules/consul/launch-configuration.tf
+resource &quot;aws_launch_configuration&quot; &quot;consul-cluster-lc&quot; {
+  name_prefix          = &quot;consul-node-&quot;
+  image_id             = &quot;${var.ec2_ami}&quot;
+  instance_type        = &quot;${var.amisize}&quot;
+  user_data            = &quot;${data.template_file.consul.rendered}&quot;
+  iam_instance_profile = &quot;${aws_iam_instance_profile.consul-instance-profile.id}&quot;
+
+  security_groups = [
+    &quot;${aws_security_group.consul-cluster-vpc.id}&quot;,
+    &quot;${aws_security_group.consul-cluster-public-web.id}&quot;,
+  ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  key_name = &quot;${var.key_name}&quot;
+}
+</code></pre>
+
+<p>Here we set:</p>
+
+<ul>
+<li>The AMI we want</li>
+<li>The instance size</li>
+<li>The <code>user_data</code> (which is bash script we wrote above)</li>
+<li>The instance profile (which we created above)</li>
+<li>Add the security groups (which we created above)</li>
+<li>Ensure that we create new instances before we destroy old instances</li>
+<li>Set the keypair that we can use to SSH into the instance</li>
+</ul>
+
+<h3 id="step-7-create-the-auto-scaling-group">Step 7: Create the auto-scaling group</h3>
+
+<p>The last thing we need to do is create the auto-scaling group. After this, Amazon will start spinning up instances automatically, and we won&rsquo;t need to do anything.</p>
+
+<pre><code>touch asg.tf
+</code></pre>
+
+<pre><code>// test/modules/consul/asg.tf
+// Auto-scaling group for our cluster.
+resource &quot;aws_autoscaling_group&quot; &quot;consul-cluster-asg&quot; {
+  depends_on           = [&quot;aws_launch_configuration.consul-cluster-lc&quot;]
+  name                 = &quot;${var.asgname}&quot;
+  launch_configuration = &quot;${aws_launch_configuration.consul-cluster-lc.name}&quot;
+  min_size             = &quot;${var.min_size}&quot;
+  max_size             = &quot;${var.max_size}&quot;
+  vpc_zone_identifier  = [&quot;${var.vpc_zone_a}&quot;, &quot;${var.vpc_zone_b}&quot;]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tag {
+    key                 = &quot;Name&quot;
+    value               = &quot;Consul Node&quot;
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = &quot;Project&quot;
+    value               = &quot;consul-cluster&quot;
+    propagate_at_launch = true
+  }
+}
+</code></pre>
+
+<p>This file <code>depends_on</code> the launch configuration we created above so Terraform wont run this until that resource has been created.</p>
+
+<p>Here we set:</p>
+
+<ul>
+<li>The autoscaling group name</li>
+<li>The launch configuration (which we created above)</li>
+<li>The minimum and maximum size (consul clusters should be either 3 or 5 instances big)</li>
+<li>Which subnets to launch the instances into</li>
+<li>Tags the instances with names so we can see them on the dashboard</li>
+</ul>
+
+<h3 id="that-s-it">That&rsquo;s it!</h3>
+
+<p>If everything went according to plan, then you can run the following commands, and you will have a consul cluster in a few minutes.</p>
+
+<pre><code>cd ../..
+terraform get
+terraform plan
+terraform apply
+</code></pre>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+        
+          <li class="next">
+            <a href="https://blog.rompli.com/post/meteor-docker-supervisord.html" data-toggle="tooltip" data-placement="top" title="Running Meteor and Mongo in a Single Docker Container with Supervisord">Next Post &rarr;</a>
+          </li>
+        
+      </ul>
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "blog-rompli-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:kris.hamoud@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/krishamoud" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/krishamoud" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/kristopher-hamoud-17b34665" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/2157923/kris-hamoud" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/michrip" title="Instagram">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/channel/UC9n68HK_yio-L1Ml5QrfcuA" title="Youtube">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-youtube fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://blog.rompli.com/index.xml" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          Kris Hamoud
+          &nbsp;&bull;&nbsp;
+          2017
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://blog.rompli.com/">Rompli Blog</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.25.1</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://blog.rompli.com/js/main.js"></script>
+<script src="https://blog.rompli.com/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.js" integrity="sha256-UplRCs9v4KXVJvVY+p+RSo5Q4ilAUXh7kpjyIP5odyc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe-ui-default.min.js" integrity="sha256-PWHOlUzc96pMc8ThwRIXPn8yH4NOLu42RQ0b9SpnpFk=" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+  </body>
+</html>
+

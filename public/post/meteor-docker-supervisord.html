@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Running Meteor and Mongo in a Single Docker Container with Supervisord</title>
+  <meta property="og:title" content="Running Meteor and Mongo in a Single Docker Container with Supervisord" />
+  <meta name="twitter:title" content="Running Meteor and Mongo in a Single Docker Container with Supervisord" />
+  <meta name="description" content="The goal of this post is to show you how to run your meteor.js application with MongoDB in one Docker container.
+Note: This should only be done for testing or prototypes.
+Step 1: Get the example app This tutorial was written as of meteor 1.5.1
+git clone https://github.com/meteor/todos mongo-meteor cd mongo-meteor meteor npm install meteor update  Note: If you plan to run the application on localhost then you&rsquo;ll have to remove the app-prod-security package">
+  <meta property="og:description" content="The goal of this post is to show you how to run your meteor.js application with MongoDB in one Docker container.
+Note: This should only be done for testing or prototypes.
+Step 1: Get the example app This tutorial was written as of meteor 1.5.1
+git clone https://github.com/meteor/todos mongo-meteor cd mongo-meteor meteor npm install meteor update  Note: If you plan to run the application on localhost then you&rsquo;ll have to remove the app-prod-security package">
+  <meta name="twitter:description" content="The goal of this post is to show you how to run your meteor.js application with MongoDB in one Docker container.
+Note: This should only be done for testing or prototypes.
+Step 1: Get the example app …">
+  <meta name="author" content="Kris Hamoud"/>
+  <link href='https://blog.rompli.com/img/favicon.ico' rel='icon' type='image/x-icon'/>
+  <meta property="og:image" content="https://blog.rompli.com/img/avatar-icon.png" />
+  <meta name="twitter:image" content="https://blog.rompli.com/img/avatar-icon.png" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@krishamoud" />
+  <meta name="twitter:creator" content="@krishamoud" />
+  <meta property="og:url" content="https://blog.rompli.com/post/meteor-docker-supervisord.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rompli Blog" />
+
+  <meta name="generator" content="Hugo 0.25.1" />
+  <link rel="canonical" href="https://blog.rompli.com/post/meteor-docker-supervisord.html" />
+  <link rel="alternate" href="https://blog.rompli.com/index.xml" type="application/rss+xml" title="Rompli Blog">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" integrity="sha384-wITovz90syo1dJWVh32uuETPVEtGigN07tkttEqPv+uR2SE/mbQcG7ATL28aI9H0" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://blog.rompli.com/css/main.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://blog.rompli.com/css/pygment_highlights.css" />
+  <link rel="stylesheet" href="https://blog.rompli.com/css/highlight.min.css" />
+
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.css" integrity="sha256-sCl5PUOGMLfFYctzDW3MtRib0ctyUvI9Qsmq2wXOeBY=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/default-skin/default-skin.min.css" integrity="sha256-BFeI1V+Vh1Rk37wswuOYn5lsTcaU96hGaI7OUVCLjPc=" crossorigin="anonymous" />
+
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+<script>
+window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+ga('create', 'UA-82742047-3', 'auto');
+ga('send', 'pageview');
+</script>
+<script async src='//www.google-analytics.com/analytics.js'></script>
+
+</head>
+
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://blog.rompli.com/">Rompli Blog</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Blog" href="/">Blog</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="About" href="/page/about.html">About</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags.html">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    <div class="avatar-container">
+      <div class="avatar-img-border">
+        
+          <a title="Rompli Blog" href="https://blog.rompli.com/">
+            <img class="avatar-img" src="https://blog.rompli.com/img/avatar-icon.png" alt="Rompli Blog" />
+          </a>
+        
+      </div>
+    </div>
+
+  </div>
+</nav>
+
+
+
+
+    
+  
+  
+  
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              <h1>Running Meteor and Mongo in a Single Docker Container with Supervisord</h1>
+                
+                
+                  <span class="post-meta">
+  Posted on July 21, 2017
+  
+</span>
+
+
+                
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        
+
+<p>The goal of this post is to show you how to run your meteor.js application with MongoDB in one Docker container.</p>
+
+<p><strong><em>Note:</em></strong> This should only be done for testing or prototypes.</p>
+
+<h3 id="step-1-get-the-example-app">Step 1: Get the example app</h3>
+
+<p>This tutorial was written as of <code>meteor 1.5.1</code></p>
+
+<pre><code>git clone https://github.com/meteor/todos mongo-meteor
+cd mongo-meteor
+meteor npm install
+meteor update
+</code></pre>
+
+<p><strong><em>Note:</em></strong> If you plan to run the application on <code>localhost</code> then you&rsquo;ll have to remove the <code>app-prod-security</code> package</p>
+
+<pre><code># .meteor/packages
+...
+
+# production
+juliancwirko:postcss
+standard-minifier-js@2.1.1
+ddp-rate-limiter@1.0.7
+# app-prod-security
+</code></pre>
+
+<h3 id="step-2-build-and-extract-the-application">Step 2: Build and extract the application</h3>
+
+<p>We&rsquo;re building the application for Linux, and I&rsquo;m going to deploy it to Rompli.</p>
+
+<pre><code>meteor build --architecture=os.linux.x86_64 --server https://todos.rompliapp.com:443 ../output
+cd ../output
+tar -zxvf mongo-meteor.tar.gz
+</code></pre>
+
+<h3 id="step-3-supervisord">Step 3: Supervisord</h3>
+
+<p>For us to run meteor and mongo in the same container, we have to use <a href="http://supervisord.org/">supervisord</a>.</p>
+
+<p>We need to create a <code>supervisord.conf</code> file to run <code>mongod</code> first, then run <code>node main.js</code> which is the entry point for the built meteor app.</p>
+
+<pre><code>cd bundle
+touch supervisord.conf
+</code></pre>
+
+<p>Edit your newly created <code>supervisord.conf</code> file to look something like this:</p>
+
+<pre><code>[supervisord]
+nodaemon=true
+
+[program:mongod]
+command=/usr/bin/mongod
+autorestart=true
+
+[program:meteor]
+directory=/bundle
+command=node main.js
+environment=
+          MONGO_URL=mongodb://localhost:27017/test,
+          ROOT_URL=https://localhost
+autorestart=true
+stderr_logfile=/dev/stderr
+stderr_logfile_maxbytes=0
+stdout_logfile=/dev/stdout
+stdout_logfile_maxbytes=0
+</code></pre>
+
+<h3 id="step-4-the-dockerfile">Step 4: The Dockerfile</h3>
+
+<p>I created a base image using <code>alpine:edge</code> that has <code>node 4.8.4</code>, <code>mongo</code>, and <code>supervisord</code> already installed and it&rsquo;s <code>224MB</code>.  If you can make a smaller image, please let me know how.  The gist for this image can be found <a href="https://gist.github.com/krishamoud/2b8a21f1c9082b1ef557118343fad698">here</a>.</p>
+
+<p>First, create the Dockerfile.</p>
+
+<pre><code>touch Dockerfile
+</code></pre>
+
+<p>Edit the <code>Dockerfile</code> to look like this.</p>
+
+<pre><code>FROM khamoud/node-supervisor-mongo
+
+COPY . /bundle
+ADD supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
+RUN apk add --no-cache make gcc g++ python &amp;&amp; \
+  cd /bundle/programs/server &amp;&amp; \
+  npm install &amp;&amp; \
+  npm uninstall -g npm &amp;&amp; \
+  apk del make gcc g++ python &amp;&amp; \
+  mkdir -p /var/log/supervisor &amp;&amp; \
+  mkdir -p /data/db
+
+ENV PORT=80
+EXPOSE 80
+CMD [&quot;/usr/bin/supervisord&quot;, &quot;-n&quot;, &quot;--configuration&quot;, &quot;/etc/supervisor/conf.d/supervisord.conf&quot;]
+</code></pre>
+
+<p><em>The compressed size of this container is 124MB</em></p>
+
+<p>The <code>RUN</code> instruction does the following:</p>
+
+<ul>
+<li>adds all the necessary dependencies to compile the node modules</li>
+<li><code>cd</code>&rsquo;s into the bundle, and <code>npm install</code>&rsquo;s everything</li>
+<li>after the <code>npm install</code> is complete, it removes all the compiler dependencies and <code>npm</code></li>
+<li>makes two directories<br /></li>
+</ul>
+
+<p>We do this all in one step to decrease the number of layers being used which will ultimately give us a smaller image.</p>
+
+<h3 id="step-5-build-and-test-the-image">Step 5: Build and test the image</h3>
+
+<p>I&rsquo;m going to build the image using my dockerhub username, but you should use your own.</p>
+
+<p><code>docker build -t khamoud/mongo-meteor .</code></p>
+
+<p>Next, run the image and see if everything worked according to plan.</p>
+
+<p><code>docker run -d -p 80:80 khamoud/mongo-meteor</code></p>
+
+<p><img src="/supervisord-meteor-demo.png" alt="Todos List with Meteor.js, mongo, and supervisord in one docker container" /></p>
+
+<h3 id="that-s-it">That&rsquo;s it!</h3>
+
+<p>You can see the image running <a href="https://todos.rompliapp.com">here</a>.</p>
+
+      </article>
+
+      <ul class="pager blog-pager">
+        
+          <li class="previous">
+            <a href="https://blog.rompli.com/post/consul.html" data-toggle="tooltip" data-placement="top" title="Terraform a Consul cluster with docker on EC2">&larr; Previous Post</a>
+          </li>
+        
+        
+      </ul>
+
+      
+        
+          <div class="disqus-comments">
+            <div id="disqus_thread"></div>
+<script>
+    var disqus_config = function () {
+    
+    
+    
+    };
+    (function() {
+        if (["localhost", "127.0.0.1"].indexOf(window.location.hostname) != -1) {
+            document.getElementById('disqus_thread').innerHTML = 'Disqus comments not available by default when the website is previewed locally.';
+            return;
+        }
+        var d = document, s = d.createElement('script'); s.async = true;
+        s.src = '//' + "blog-rompli-com" + '.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', +new Date());
+        (d.head || d.body).appendChild(s);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          </div>
+        
+      
+
+    </div>
+  </div>
+</div>
+
+    <footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="mailto:kris.hamoud@gmail.com" title="Email me">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-envelope fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/krishamoud" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/krishamoud" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/kristopher-hamoud-17b34665" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://stackoverflow.com/users/2157923/kris-hamoud" title="StackOverflow">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-stack-overflow fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.instagram.com/michrip" title="Instagram">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-instagram fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://www.youtube.com/channel/UC9n68HK_yio-L1Ml5QrfcuA" title="Youtube">
+                  <span class="fa-stack fa-lg">
+                    <i class="fa fa-circle fa-stack-2x"></i>
+                    <i class="fa fa-youtube fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+          <li>
+            <a href="https://blog.rompli.com/index.xml" title="RSS">
+              <span class="fa-stack fa-lg">
+                <i class="fa fa-circle fa-stack-2x"></i>
+                <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
+              </span>
+            </a>
+          </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          Kris Hamoud
+          &nbsp;&bull;&nbsp;
+          2017
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://blog.rompli.com/">Rompli Blog</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="http://gohugo.io">Hugo v0.25.1</a> powered &nbsp;&bull;&nbsp; Theme by <a href="http://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a> adapted to <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" integrity="sha384-/y1Nn9+QQAipbNQWU65krzJralCnuOasHncUFXGkdwntGeSvQicrYkiUBwsgUqc1" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/contrib/auto-render.min.js" integrity="sha384-dq1/gEHSxPZQ7DdrM82ID4YVol9BYyU7GbWlIwnwyPzotpoc57wDw/guX8EaYGPx" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="https://blog.rompli.com/js/main.js"></script>
+<script src="https://blog.rompli.com/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> renderMathInElement(document.body); </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe.min.js" integrity="sha256-UplRCs9v4KXVJvVY+p+RSo5Q4ilAUXh7kpjyIP5odyc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.1/photoswipe-ui-default.min.js" integrity="sha256-PWHOlUzc96pMc8ThwRIXPn8yH4NOLu42RQ0b9SpnpFk=" crossorigin="anonymous"></script>
+<script src="/js/load-photoswipe.js"></script>
+
+
+
+
+  </body>
+</html>
+

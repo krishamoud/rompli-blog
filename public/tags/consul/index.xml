@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Consul on Rompli Blog</title>
+    <link>https://blog.rompli.com/tags/consul.html</link>
+    <description>Recent content in Consul on Rompli Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>kris.hamoud@gmail.com (Kris Hamoud)</managingEditor>
+    <webMaster>kris.hamoud@gmail.com (Kris Hamoud)</webMaster>
+    <lastBuildDate>Wed, 19 Jul 2017 20:22:25 -0400</lastBuildDate>
+    
+	<atom:link href="https://blog.rompli.com/tags/consul/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Terraform a Consul cluster with docker on EC2</title>
+      <link>https://blog.rompli.com/post/consul.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/post/consul.html</guid>
+      <description>The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future when I show you how to terraform a classic docker swarm.
+Consul, Terraform, AWS Consul is an open source software created by Hashicorp used for service discovery, configuration management, DNS, KV storage, and more. It’s a powerful tool, and it’s worth learning.</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -1,0 +1,57 @@
+baseurl = "https://blog.rompli.com/"
+DefaultContentLanguage = "en"
+uglyurls = true
+#DefaultContentLanguage = "ja"
+title = "Rompli Blog"
+theme = "beautifulhugo"
+metaDataFormat = "yaml"
+pygmentsUseClasses = true
+pygmentCodeFences = true
+disqusShortname = "blog-rompli-com"
+googleAnalytics = "UA-82742047-3"
+
+[Params]
+  subtitle = "All things startups and containers"
+  logo = "img/avatar-icon.png"
+  favicon = "img/favicon.ico"
+  dateFormat = "January 2, 2006"
+  commit = false
+  rss = true
+  comments = true
+#  gcse = "012345678901234567890:abcdefghijk" # Get your code from google.com/cse. Make sure to go to "Look and Feel" and change Layout to "Full Width" and Theme to "Classic"
+
+#[[Params.bigimg]]
+#  src = "img/triangle.jpg"
+#  desc = "Triangle"
+#[[Params.bigimg]]
+#  src = "img/sphere.jpg"
+#  desc = "Sphere"
+#[[Params.bigimg]]
+#  src = "img/hexagon.jpg"
+#  desc = "Hexagon"
+
+[Author]
+  name = "Kris Hamoud"
+  email = "kris.hamoud@gmail.com"
+  github = "krishamoud"
+  twitter = "krishamoud"
+  linkedin = "kristopher-hamoud-17b34665"
+  stackoverflow = "users/2157923/kris-hamoud"
+  instagram = "michrip"
+  youtube = "channel/UC9n68HK_yio-L1Ml5QrfcuA" # or channel/channelname
+
+[[menu.main]]
+    name = "Blog"
+    url = ""
+    weight = 1
+
+[[menu.main]]
+    name = "About"
+    url = "page/about.html"
+    weight = 3
+
+[[menu.main]]
+    name = "Tags"
+    url = "tags.html"
+    weight = 3
+

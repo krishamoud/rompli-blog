@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Posts on Rompli Blog</title>
+    <link>https://blog.rompli.com/post.html</link>
+    <description>Recent content in Posts on Rompli Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>kris.hamoud@gmail.com (Kris Hamoud)</managingEditor>
+    <webMaster>kris.hamoud@gmail.com (Kris Hamoud)</webMaster>
+    <lastBuildDate>Fri, 21 Jul 2017 05:03:27 -0400</lastBuildDate>
+    
+	<atom:link href="https://blog.rompli.com/post/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Running Meteor and Mongo in a Single Docker Container with Supervisord</title>
+      <link>https://blog.rompli.com/post/meteor-docker-supervisord.html</link>
+      <pubDate>Fri, 21 Jul 2017 05:03:27 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/post/meteor-docker-supervisord.html</guid>
+      <description>The goal of this post is to show you how to run your meteor.js application with MongoDB in one Docker container.
+Note: This should only be done for testing or prototypes.
+Step 1: Get the example app This tutorial was written as of meteor 1.5.1
+git clone https://github.com/meteor/todos mongo-meteor cd mongo-meteor meteor npm install meteor update  Note: If you plan to run the application on localhost then you&amp;rsquo;ll have to remove the app-prod-security package</description>
+    </item>
+    
+    <item>
+      <title>Terraform a Consul cluster with docker on EC2</title>
+      <link>https://blog.rompli.com/post/consul.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/post/consul.html</guid>
+      <description>The goal of this post is to teach you how to configure and launch a production quality, self-healing, Consul cluster using terraform and docker on AWS. This tutorial will be referenced in the future when I show you how to terraform a classic docker swarm.
+Consul, Terraform, AWS Consul is an open source software created by Hashicorp used for service discovery, configuration management, DNS, KV storage, and more. It’s a powerful tool, and it’s worth learning.</description>
+    </item>
+    
+  </channel>
+</rss>

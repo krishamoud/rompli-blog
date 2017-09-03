@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  
+  <url>
+    <loc>https://blog.rompli.com/post/meteor-docker-supervisord.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/post/consul.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/page/about.html</loc>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/autoscaling.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/aws.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/categories.html</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/consul.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/docker.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/ec2.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/meteor.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/mongo.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/page.html</loc>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/post.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/supervisord.html</loc>
+    <lastmod>2017-07-21T05:03:27-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>https://blog.rompli.com/tags/terraform.html</loc>
+    <lastmod>2017-07-19T20:22:25-04:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+</urlset>

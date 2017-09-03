@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on Rompli Blog</title>
+    <link>https://blog.rompli.com/tags.html</link>
+    <description>Recent content in Tags on Rompli Blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <managingEditor>kris.hamoud@gmail.com (Kris Hamoud)</managingEditor>
+    <webMaster>kris.hamoud@gmail.com (Kris Hamoud)</webMaster>
+    <lastBuildDate>Wed, 19 Jul 2017 20:22:25 -0400</lastBuildDate>
+    
+	<atom:link href="https://blog.rompli.com/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Autoscaling</title>
+      <link>https://blog.rompli.com/tags/autoscaling.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/autoscaling.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Aws</title>
+      <link>https://blog.rompli.com/tags/aws.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/aws.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Consul</title>
+      <link>https://blog.rompli.com/tags/consul.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/consul.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Docker</title>
+      <link>https://blog.rompli.com/tags/docker.html</link>
+      <pubDate>Fri, 21 Jul 2017 05:03:27 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/docker.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Ec2</title>
+      <link>https://blog.rompli.com/tags/ec2.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/ec2.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Meteor</title>
+      <link>https://blog.rompli.com/tags/meteor.html</link>
+      <pubDate>Fri, 21 Jul 2017 05:03:27 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/meteor.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Mongo</title>
+      <link>https://blog.rompli.com/tags/mongo.html</link>
+      <pubDate>Fri, 21 Jul 2017 05:03:27 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/mongo.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Supervisord</title>
+      <link>https://blog.rompli.com/tags/supervisord.html</link>
+      <pubDate>Fri, 21 Jul 2017 05:03:27 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/supervisord.html</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Terraform</title>
+      <link>https://blog.rompli.com/tags/terraform.html</link>
+      <pubDate>Wed, 19 Jul 2017 20:22:25 -0400</pubDate>
+      <author>kris.hamoud@gmail.com (Kris Hamoud)</author>
+      <guid>https://blog.rompli.com/tags/terraform.html</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
